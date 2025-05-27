@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { FolderOpen, Rocket, Facebook, List } from "lucide-react";
+import { FolderOpen, Rocket, Facebook, List, BarChart3 } from "lucide-react";
 
 interface TabNavigationProps {
   activeTab: string;
@@ -38,6 +38,11 @@ export default function TabNavigation({ activeTab, setActiveTab }: TabNavigation
       icon: List,
       badge: pendingJobs > 0 ? pendingJobs : undefined,
     },
+    {
+      id: "analytics",
+      label: "Analytics",
+      icon: BarChart3,
+    },
   ];
 
   return (
@@ -46,11 +51,7 @@ export default function TabNavigation({ activeTab, setActiveTab }: TabNavigation
         <Button
           key={tab.id}
           variant="ghost"
-          className={`pb-4 px-1 h-auto rounded-none relative ${
-            activeTab === tab.id
-              ? "text-blue-600 border-b-2 border-blue-600"
-              : "text-slate-500 hover:text-slate-700"
-          }`}
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground py-2 pb-4 px-1 h-auto rounded-none relative border-b-2 border-blue-600 text-[#334155]"
           onClick={() => setActiveTab(tab.id)}
         >
           <tab.icon className="mr-2 h-4 w-4" />

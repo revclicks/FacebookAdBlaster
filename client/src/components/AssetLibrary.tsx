@@ -147,7 +147,7 @@ export default function AssetLibrary() {
             <p className="text-sm text-slate-600 mt-1">Manage your creative assets, images, videos, and text content</p>
           </div>
           <div className="flex items-center space-x-3">
-            <Button onClick={() => setIsUploadModalOpen(true)} className="bg-blue-600 hover:bg-blue-700">
+            <Button onClick={() => setIsUploadModalOpen(true)} className="bg-blue-600 hover:bg-blue-700 text-[#ffffff]">
               <Upload className="mr-2 h-4 w-4" />
               Upload Assets
             </Button>
