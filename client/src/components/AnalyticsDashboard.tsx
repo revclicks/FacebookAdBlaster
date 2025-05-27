@@ -144,7 +144,7 @@ export default function AnalyticsDashboard() {
 
       {/* Key Metrics Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
@@ -164,7 +164,7 @@ export default function AnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
@@ -184,7 +184,7 @@ export default function AnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
@@ -204,7 +204,7 @@ export default function AnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center space-x-2">
@@ -227,7 +227,7 @@ export default function AnalyticsDashboard() {
 
       {/* Performance Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2 mb-2">
               <BarChart3 className="h-5 w-5 text-blue-600" />
@@ -240,7 +240,7 @@ export default function AnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2 mb-2">
               <DollarSign className="h-5 w-5 text-green-600" />
@@ -253,7 +253,7 @@ export default function AnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2 mb-2">
               <TrendingUp className="h-5 w-5 text-purple-600" />
@@ -266,7 +266,7 @@ export default function AnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-white border-slate-200">
           <CardContent className="p-6">
             <div className="flex items-center space-x-2 mb-2">
               <Users className="h-5 w-5 text-orange-600" />
@@ -281,7 +281,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Campaign Performance Table */}
-      <Card>
+      <Card className="bg-white border-slate-200">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <span>Campaign Performance</span>
