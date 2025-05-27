@@ -23,6 +23,7 @@ interface Asset {
   id: number;
   name: string;
   type: 'image' | 'video' | 'text';
+  folderId?: number;
   fileName?: string;
   filePath?: string;
   fileSize?: number;
@@ -72,10 +73,7 @@ export default function AssetLibrary() {
   // Create folder mutation
   const createFolderMutation = useMutation({
     mutationFn: (data: { name: string; parentId?: number }) =>
-      apiRequest('/api/asset-folders', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      }),
+      apiRequest('/api/asset-folders', 'POST', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
       setShowNewFolderInput(false);
@@ -86,10 +84,7 @@ export default function AssetLibrary() {
   // Update asset mutation
   const updateAssetMutation = useMutation({
     mutationFn: ({ id, updates }: { id: number; updates: Partial<Asset> }) =>
-      apiRequest(`/api/assets/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-      }),
+      apiRequest(`/api/assets/${id}`, 'PATCH', updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/assets'] });
       setEditingAssetId(null);
@@ -99,9 +94,7 @@ export default function AssetLibrary() {
   // Delete folder mutation
   const deleteFolderMutation = useMutation({
     mutationFn: (folderId: number) =>
-      apiRequest(`/api/asset-folders/${folderId}`, {
-        method: 'DELETE',
-      }),
+      apiRequest(`/api/asset-folders/${folderId}`, 'DELETE'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
     },
@@ -110,9 +103,7 @@ export default function AssetLibrary() {
   // Delete asset mutation
   const deleteAssetMutation = useMutation({
     mutationFn: (assetId: number) =>
-      apiRequest(`/api/assets/${assetId}`, {
-        method: 'DELETE',
-      }),
+      apiRequest(`/api/assets/${assetId}`, 'DELETE'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/assets'] });
     },

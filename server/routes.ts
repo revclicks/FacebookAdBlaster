@@ -155,7 +155,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/asset-folders', async (req, res) => {
+  app.post('/api/asset-folders', authenticateUser, async (req, res) => {
     try {
       const folderData = insertAssetFolderSchema.parse({
         ...req.body,
@@ -164,7 +164,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const folder = await storage.createAssetFolder(folderData);
       res.json(folder);
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      console.error('Error creating folder:', error);
+      res.status(400).json({ error: error instanceof Error ? error.message : 'Unknown error' });
     }
   });
 
