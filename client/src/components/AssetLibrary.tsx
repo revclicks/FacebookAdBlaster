@@ -113,6 +113,35 @@ export default function AssetLibrary() {
     },
   });
 
+  const renameFolderMutation = useMutation({
+    mutationFn: async ({ folderId, newName }: { folderId: number, newName: string }) => {
+      await apiRequest("PATCH", `/api/asset-folders/${folderId}`, {
+        name: newName
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/asset-folders"] });
+      toast({ title: "Folder renamed successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error renaming folder", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const deleteFolderMutation = useMutation({
+    mutationFn: async (folderId: number) => {
+      await apiRequest("DELETE", `/api/asset-folders/${folderId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/asset-folders"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/assets"] });
+      toast({ title: "Folder deleted successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error deleting folder", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleCreateFolder = () => {
     const name = prompt("Enter folder name:");
     if (name) {
@@ -340,17 +369,11 @@ export default function AssetLibrary() {
             </Card>
           )}
 
-          {/* Mock Folders for Demo - Just like your reference image */}
-          {[
-            { id: 'wp-img', name: 'WP IMG', count: 8 },
-            { id: 'wp', name: 'WP', count: 14 },
-            { id: 'pbs2', name: 'PBS2', count: 12 },
-            { id: 'pbs', name: 'PBS', count: 3 },
-            { id: '5k', name: '5k', count: 2 }
-          ].map((folder) => (
+          {/* Real Folders from Database */}
+          {folders.map((folder) => (
             <Card 
               key={folder.id} 
-              className={`cursor-pointer hover:shadow-md transition-all group border border-slate-200 hover:border-blue-300 ${
+              className={`relative cursor-pointer hover:shadow-md transition-all group border border-slate-200 hover:border-blue-300 ${
                 dropTarget === folder.id && isDragging ? 'border-blue-500 bg-blue-50' : ''
               }`}
               draggable
@@ -361,13 +384,46 @@ export default function AssetLibrary() {
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, folder.id as any)}
             >
+              {/* Folder Actions */}
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 flex space-x-1 z-10">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 w-6 p-0 bg-white shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newName = prompt("Enter new folder name:", folder.name);
+                    if (newName && newName !== folder.name) {
+                      renameFolderMutation.mutate({ folderId: folder.id, newName });
+                    }
+                  }}
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 bg-white shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (confirm(`Are you sure you want to delete the "${folder.name}" folder?`)) {
+                      deleteFolderMutation.mutate(folder.id);
+                    }
+                  }}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+              
               <CardContent className="p-6 text-center">
-                <div className="flex flex-col items-center" onClick={() => setCurrentFolderId(folder.id as any)}>
+                <div className="flex flex-col items-center" onClick={() => setCurrentFolderId(folder.id)}>
                   <div className="relative mb-3">
                     <Folder className="h-12 w-12 text-blue-500 mb-2" />
                     {isDragging && <Move className="h-4 w-4 text-blue-600 absolute -top-1 -right-1" />}
                   </div>
-                  <span className="text-xs text-slate-500 mb-1">{folder.count} creatives</span>
+                  <span className="text-xs text-slate-500 mb-1">
+                    {assets.filter(asset => asset.folderId === folder.id).length} creatives
+                  </span>
                   <span className="text-sm font-medium text-slate-800">{folder.name}</span>
                 </div>
               </CardContent>
