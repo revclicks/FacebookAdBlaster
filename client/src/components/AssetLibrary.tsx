@@ -383,12 +383,12 @@ export default function AssetLibrary() {
             </Card>
           )}
 
-          {/* Show all folders as drop zones when dragging */}
-          {isDragging && !currentFolderId && folders.map((folder) => (
+          {/* Show all folders as drop zones when dragging an asset */}
+          {isDragging && draggedAsset && !currentFolderId && folders.map((folder) => (
             <Card 
               key={`drop-${folder.id}`}
               className={`cursor-pointer transition-all border-2 border-dashed ${
-                dropTarget === folder.id ? 'border-blue-500 bg-blue-50' : 'border-blue-300 bg-blue-25'
+                dropTarget === folder.id ? 'border-blue-500 bg-blue-50' : 'border-blue-300 bg-blue-50'
               }`}
               onDragOver={handleDragOver}
               onDragEnter={(e) => handleDragEnter(e, folder.id as any)}
@@ -405,8 +405,8 @@ export default function AssetLibrary() {
             </Card>
           ))}
 
-          {/* Regular Folders (when not dragging) */}
-          {!isDragging && folders.map((folder) => (
+          {/* Regular Folders (when not dragging an asset) */}
+          {(!isDragging || !draggedAsset) && folders.map((folder) => (
             <Card 
               key={folder.id} 
               className={`relative cursor-pointer hover:shadow-md transition-all group border border-slate-200 hover:border-blue-300 ${
