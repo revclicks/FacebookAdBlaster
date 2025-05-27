@@ -85,10 +85,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const result = await pool.query(query);
       
       console.log('✅ SQL UPDATE SUCCESS:', result);
+      res.setHeader('Content-Type', 'application/json');
       res.json({ success: true, result });
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ SQL UPDATE ERROR:', error);
-      res.status(500).json({ error: error.message });
+      res.setHeader('Content-Type', 'application/json');
+      res.status(500).json({ error: error?.message || 'Unknown error' });
     }
   });
 
