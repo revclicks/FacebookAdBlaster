@@ -28,7 +28,7 @@ interface CampaignMetrics {
   ctr: number;
   cpc: number;
   cpm: number;
-  roas: number;
+  roi: number;
   frequency: number;
   reach: number;
   dateRange: string;
@@ -41,7 +41,7 @@ interface AnalyticsOverview {
   totalConversions: number;
   averageCTR: number;
   averageCPC: number;
-  averageROAS: number;
+  averageROI: number;
   activeCampaigns: number;
   spendChange: number;
   impressionsChange: number;
@@ -257,12 +257,12 @@ export default function AnalyticsDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center space-x-2 mb-2">
               <TrendingUp className="h-5 w-5 text-purple-600" />
-              <span className="text-sm font-medium text-slate-600">Avg ROAS</span>
+              <span className="text-sm font-medium text-slate-600">Avg ROI</span>
             </div>
             <div className="text-2xl font-bold text-slate-900">
-              {overview ? `${overview.averageROAS.toFixed(2)}x` : "0x"}
+              {overview ? `${overview.averageROI.toFixed(2)}%` : "0%"}
             </div>
-            <p className="text-sm text-slate-500">Return on ad spend</p>
+            <p className="text-sm text-slate-500">Return on investment</p>
           </CardContent>
         </Card>
 
@@ -294,7 +294,7 @@ export default function AnalyticsDashboard() {
                 <SelectItem value="impressions">Sort by Impressions</SelectItem>
                 <SelectItem value="clicks">Sort by Clicks</SelectItem>
                 <SelectItem value="conversions">Sort by Conversions</SelectItem>
-                <SelectItem value="roas">Sort by ROAS</SelectItem>
+                <SelectItem value="roi">Sort by ROI</SelectItem>
               </SelectContent>
             </Select>
           </CardTitle>
@@ -312,7 +312,7 @@ export default function AnalyticsDashboard() {
                   <th className="text-right py-3 px-4 font-medium text-slate-600">CTR</th>
                   <th className="text-right py-3 px-4 font-medium text-slate-600">CPC</th>
                   <th className="text-right py-3 px-4 font-medium text-slate-600">Conversions</th>
-                  <th className="text-right py-3 px-4 font-medium text-slate-600">ROAS</th>
+                  <th className="text-right py-3 px-4 font-medium text-slate-600">ROI</th>
                 </tr>
               </thead>
               <tbody>
@@ -349,8 +349,8 @@ export default function AnalyticsDashboard() {
                         {formatNumber(campaign.conversions)}
                       </td>
                       <td className="text-right py-3 px-4">
-                        <Badge variant={campaign.roas > 3 ? "default" : "secondary"} className="bg-blue-100 text-blue-800 border-blue-200">
-                          {campaign.roas.toFixed(2)}x
+                        <Badge variant={campaign.roi > 300 ? "default" : "secondary"} className="bg-blue-100 text-blue-800 border-blue-200">
+                          {campaign.roi.toFixed(1)}%
                         </Badge>
                       </td>
                     </tr>
