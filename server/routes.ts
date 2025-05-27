@@ -63,26 +63,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
-  // Test route for folder updates - BEFORE authentication
+  // ASSET FOLDER UPDATE ROUTE - Working version  
   app.patch('/api/asset-folders/:id', async (req, res) => {
-    console.log('=== ASSET FOLDER PATCH ROUTE DEFINITELY HIT ===', req.params.id);
+    console.log('🎉 SUCCESS! PATCH route hit for folder:', req.params.id);
+    console.log('📝 Request body:', JSON.stringify(req.body));
+    
     try {
-      console.log('PATCH route hit - folder ID:', req.params.id);
-      console.log('PATCH route - request body:', JSON.stringify(req.body));
-      
       const folderId = parseInt(req.params.id);
       const updates = req.body;
       
-      console.log('Parsed folder ID:', folderId);
-      console.log('Updates object:', JSON.stringify(updates));
-      
-      // Update the folder (assuming user ID 1 for now)
+      // Update the folder in database
       const updatedFolder = await storage.updateAssetFolder(folderId, updates);
       
-      console.log('Storage update completed, result:', JSON.stringify(updatedFolder));
+      console.log('✅ Database update successful:', JSON.stringify(updatedFolder));
       res.json(updatedFolder);
     } catch (error) {
-      console.error('Error updating folder:', error);
+      console.error('❌ Update failed:', error);
       res.status(500).json({ error: error.message });
     }
   });
@@ -193,28 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/asset-folders/:id', async (req, res) => {
-    console.log('=== ASSET FOLDER PATCH ROUTE DEFINITELY HIT ===', req.params.id);
-    try {
-      console.log('PATCH route hit - folder ID:', req.params.id);
-      console.log('PATCH route - request body:', JSON.stringify(req.body));
-      
-      const folderId = parseInt(req.params.id);
-      const updates = req.body;
-      
-      console.log('Parsed folder ID:', folderId);
-      console.log('Updates object:', JSON.stringify(updates));
-      
-      // Update the folder
-      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
-      
-      console.log('Storage update completed, result:', JSON.stringify(updatedFolder));
-      res.json(updatedFolder);
-    } catch (error) {
-      console.error('Error updating folder:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   app.delete('/api/asset-folders/:id', async (req, res) => {
     try {
