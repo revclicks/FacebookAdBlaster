@@ -169,7 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/asset-folders/:id', authenticateUser, async (req, res) => {
+  app.patch('/api/asset-folders/:id', async (req, res) => {
     try {
       console.log('PATCH route hit - folder ID:', req.params.id);
       console.log('PATCH route - request body:', JSON.stringify(req.body));
