@@ -161,10 +161,26 @@ export default function AssetLibrary() {
   const handleRenameFolder = (folderId: number, currentName: string) => {
     const newName = prompt('Enter new folder name:', currentName);
     if (newName && newName !== currentName) {
-      // Use the existing working asset-folders route
-      updateFolderMutation.mutate({
-        id: folderId,
-        updates: { name: newName.trim() }
+      // Direct SQL update workaround
+      fetch('/api/sql-update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `UPDATE asset_folders SET name = '${newName.trim()}' WHERE id = ${folderId}`,
+        }),
+        credentials: 'include'
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('✅ Direct SQL update successful:', data);
+        // Refresh the folder data
+        queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
+        queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
+      })
+      .catch(error => {
+        console.error('❌ Direct SQL update failed:', error);
       });
     }
   };

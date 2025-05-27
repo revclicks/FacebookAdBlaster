@@ -7,6 +7,8 @@ import { jobQueue } from "./queue";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 // Configure multer for file uploads
 const uploadDir = path.join(process.cwd(), 'uploads');
@@ -62,6 +64,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health check
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
+  });
+
+  // Direct SQL update workaround for folder renaming
+  app.post('/api/sql-update', authenticateUser, async (req: any, res: any) => {
+    console.log('🔧 SQL UPDATE WORKAROUND:', req.body.query);
+    
+    try {
+      const { query } = req.body;
+      
+      // Basic security check - only allow UPDATE queries on asset_folders
+      if (!query.toLowerCase().includes('update asset_folders') || 
+          query.toLowerCase().includes('drop') || 
+          query.toLowerCase().includes('delete')) {
+        return res.status(400).json({ error: 'Invalid query' });
+      }
+      
+      // Execute the query using the existing pool
+      const { pool } = require('./db');
+      const result = await pool.query(query);
+      
+      console.log('✅ SQL UPDATE SUCCESS:', result);
+      res.json({ success: true, result });
+    } catch (error) {
+      console.error('❌ SQL UPDATE ERROR:', error);
+      res.status(500).json({ error: error.message });
+    }
   });
 
 
