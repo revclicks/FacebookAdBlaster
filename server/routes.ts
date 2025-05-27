@@ -63,21 +63,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
-  // TEST ROUTE - Different path to avoid conflicts
+  // WORKING FOLDER UPDATE ROUTE
   app.patch('/api/folders/:id/update', async (req, res) => {
-    console.log('🎉 NEW ROUTE HIT! Folder:', req.params.id);
-    console.log('📝 Body:', JSON.stringify(req.body));
+    console.log('🎉 FOLDER UPDATE ROUTE EXECUTING! ID:', req.params.id);
+    console.log('📝 Request body:', JSON.stringify(req.body));
     
     try {
       const folderId = parseInt(req.params.id);
       const updates = req.body;
       
+      console.log('🔄 Calling storage.updateAssetFolder...');
       const updatedFolder = await storage.updateAssetFolder(folderId, updates);
       
-      console.log('✅ SUCCESS:', JSON.stringify(updatedFolder));
+      console.log('✅ DATABASE UPDATE SUCCESSFUL:', JSON.stringify(updatedFolder));
       res.json(updatedFolder);
     } catch (error) {
-      console.error('❌ FAILED:', error);
+      console.error('❌ DATABASE UPDATE FAILED:', error);
       res.status(500).json({ error: error.message });
     }
   });
