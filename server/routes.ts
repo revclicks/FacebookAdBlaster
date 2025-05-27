@@ -63,22 +63,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
-  // ASSET FOLDER UPDATE ROUTE - Working version  
-  app.patch('/api/asset-folders/:id', async (req, res) => {
-    console.log('🎉 SUCCESS! PATCH route hit for folder:', req.params.id);
-    console.log('📝 Request body:', JSON.stringify(req.body));
+  // TEST ROUTE - Different path to avoid conflicts
+  app.patch('/api/folders/:id/update', async (req, res) => {
+    console.log('🎉 NEW ROUTE HIT! Folder:', req.params.id);
+    console.log('📝 Body:', JSON.stringify(req.body));
     
     try {
       const folderId = parseInt(req.params.id);
       const updates = req.body;
       
-      // Update the folder in database
       const updatedFolder = await storage.updateAssetFolder(folderId, updates);
       
-      console.log('✅ Database update successful:', JSON.stringify(updatedFolder));
+      console.log('✅ SUCCESS:', JSON.stringify(updatedFolder));
       res.json(updatedFolder);
     } catch (error) {
-      console.error('❌ Update failed:', error);
+      console.error('❌ FAILED:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Original route for compatibility
+  app.patch('/api/asset-folders/:id', async (req, res) => {
+    console.log('🔄 ORIGINAL ROUTE HIT for folder:', req.params.id);
+    try {
+      const folderId = parseInt(req.params.id);
+      const updates = req.body;
+      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
+      console.log('✅ Original route success:', JSON.stringify(updatedFolder));
+      res.json(updatedFolder);
+    } catch (error) {
+      console.error('❌ Original route failed:', error);
       res.status(500).json({ error: error.message });
     }
   });
