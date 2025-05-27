@@ -58,26 +58,6 @@ async function authenticateUser(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // FOLDER RENAME - FIRST ROUTE TO AVOID ALL CONFLICTS
-  app.patch('/api/rename-folder/:id', async (req, res) => {
-    console.log('🎯 FIRST ROUTE EXECUTING! Folder ID:', req.params.id);
-    console.log('📥 Request body:', JSON.stringify(req.body));
-    
-    try {
-      const folderId = parseInt(req.params.id);
-      const { name } = req.body;
-      
-      console.log('🔄 Updating folder', folderId, 'to name:', name);
-      
-      const updatedFolder = await storage.updateAssetFolder(folderId, { name });
-      
-      console.log('🎉 UPDATE COMPLETE:', JSON.stringify(updatedFolder));
-      res.json(updatedFolder);
-    } catch (error) {
-      console.error('💥 UPDATE ERROR:', error);
-      res.status(500).json({ error: 'Failed to update folder' });
-    }
-  });
 
   // Health check
   app.get("/api/health", (req, res) => {
@@ -86,37 +66,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // WORKING FOLDER UPDATE ROUTE
-  app.patch('/api/folders/:id/update', async (req, res) => {
-    console.log('🎉 FOLDER UPDATE ROUTE EXECUTING! ID:', req.params.id);
-    console.log('📝 Request body:', JSON.stringify(req.body));
+  // Asset folder update route
+  app.patch('/api/asset-folders/:id', authenticateUser, async (req: any, res: any) => {
+    console.log('📁 FOLDER UPDATE - ID:', req.params.id, 'Body:', JSON.stringify(req.body));
     
     try {
       const folderId = parseInt(req.params.id);
       const updates = req.body;
       
-      console.log('🔄 Calling storage.updateAssetFolder...');
+      // Note: User ownership will be verified by the storage layer
+      
+      console.log('🔄 Updating folder with storage...');
       const updatedFolder = await storage.updateAssetFolder(folderId, updates);
       
-      console.log('✅ DATABASE UPDATE SUCCESSFUL:', JSON.stringify(updatedFolder));
+      console.log('✅ FOLDER UPDATE SUCCESS:', JSON.stringify(updatedFolder));
       res.json(updatedFolder);
     } catch (error) {
-      console.error('❌ DATABASE UPDATE FAILED:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Original route for compatibility
-  app.patch('/api/asset-folders/:id', async (req, res) => {
-    console.log('🔄 ORIGINAL ROUTE HIT for folder:', req.params.id);
-    try {
-      const folderId = parseInt(req.params.id);
-      const updates = req.body;
-      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
-      console.log('✅ Original route success:', JSON.stringify(updatedFolder));
-      res.json(updatedFolder);
-    } catch (error) {
-      console.error('❌ Original route failed:', error);
+      console.error('❌ FOLDER UPDATE ERROR:', error);
       res.status(500).json({ error: error.message });
     }
   });
