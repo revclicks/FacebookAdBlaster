@@ -70,6 +70,20 @@ export default function AssetLibrary() {
     },
   });
 
+  const updateAssetMutation = useMutation({
+    mutationFn: async ({ assetId, updates }: { assetId: number, updates: Partial<Asset> }) => {
+      const response = await apiRequest("PATCH", `/api/assets/${assetId}`, updates);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assets"] });
+      toast({ title: "Asset updated successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error updating asset", description: error.message, variant: "destructive" });
+    },
+  });
+
   const deleteAssetMutation = useMutation({
     mutationFn: async (assetId: number) => {
       await apiRequest("DELETE", `/api/assets/${assetId}`);
@@ -139,19 +153,6 @@ export default function AssetLibrary() {
     },
     onError: (error) => {
       toast({ title: "Error deleting folder", description: error.message, variant: "destructive" });
-    },
-  });
-
-  const updateAssetMutation = useMutation({
-    mutationFn: async ({ assetId, updates }: { assetId: number, updates: Partial<Asset> }) => {
-      await apiRequest("PATCH", `/api/assets/${assetId}`, updates);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/assets"] });
-      toast({ title: "Asset updated successfully" });
-    },
-    onError: (error) => {
-      toast({ title: "Error updating asset", description: error.message, variant: "destructive" });
     },
   });
 
