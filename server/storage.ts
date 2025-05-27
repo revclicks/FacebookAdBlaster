@@ -139,9 +139,16 @@ export class DatabaseStorage implements IStorage {
   async updateAssetFolder(id: number, updates: Partial<AssetFolder>): Promise<AssetFolder> {
     console.log('Storage updateAssetFolder called with:', { id, updates });
     
+    // Clean the updates object to only include valid fields
+    const cleanUpdates: any = {};
+    if (updates.name !== undefined) cleanUpdates.name = updates.name;
+    if (updates.parentId !== undefined) cleanUpdates.parentId = updates.parentId;
+    
+    console.log('Clean updates:', cleanUpdates);
+    
     const [updatedFolder] = await db
       .update(assetFolders)
-      .set(updates)
+      .set(cleanUpdates)
       .where(eq(assetFolders.id, id))
       .returning();
     
