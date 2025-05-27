@@ -256,6 +256,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/assets/:id', async (req, res) => {
+    try {
+      const asset = await storage.getAsset(parseInt(req.params.id));
+      if (!asset || asset.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Asset not found' });
+      }
+      
+      const updatedAsset = await storage.updateAsset(parseInt(req.params.id), req.body);
+      res.json(updatedAsset);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Serve uploaded files
   app.get('/api/assets/:id/file', async (req, res) => {
     try {
