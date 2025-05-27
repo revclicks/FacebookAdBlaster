@@ -161,31 +161,10 @@ export default function AssetLibrary() {
   const handleRenameFolder = (folderId: number, currentName: string) => {
     const newName = prompt('Enter new folder name:', currentName);
     if (newName && newName !== currentName) {
-      // Direct API call to work around route issues
-      fetch(`/api/rename-folder/${folderId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: newName.trim() }),
-        credentials: 'include'
-      })
-      .then(response => {
-        if (response.ok) {
-          console.log('✅ Direct fetch successful');
-          // Force immediate cache refresh
-          queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
-          queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
-          // Also force a page refresh after a short delay to ensure update
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        } else {
-          console.error('❌ Direct fetch failed:', response.status);
-        }
-      })
-      .catch(error => {
-        console.error('❌ Direct fetch error:', error);
+      // Use the existing working asset-folders route
+      updateFolderMutation.mutate({
+        id: folderId,
+        updates: { name: newName.trim() }
       });
     }
   };
