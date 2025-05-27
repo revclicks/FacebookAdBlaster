@@ -58,15 +58,10 @@ async function authenticateUser(req: any, res: any, next: any) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Health check
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
-  });
-
-  // DIRECT FOLDER RENAME - No middleware conflicts
+  // FOLDER RENAME - FIRST ROUTE TO AVOID ALL CONFLICTS
   app.patch('/api/rename-folder/:id', async (req, res) => {
-    console.log('🚀 DIRECT RENAME ROUTE EXECUTING! Folder ID:', req.params.id);
-    console.log('📝 Body received:', JSON.stringify(req.body));
+    console.log('🎯 FIRST ROUTE EXECUTING! Folder ID:', req.params.id);
+    console.log('📥 Request body:', JSON.stringify(req.body));
     
     try {
       const folderId = parseInt(req.params.id);
@@ -74,16 +69,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       console.log('🔄 Updating folder', folderId, 'to name:', name);
       
-      // Direct database update
       const updatedFolder = await storage.updateAssetFolder(folderId, { name });
       
-      console.log('✅ DIRECT UPDATE SUCCESS:', JSON.stringify(updatedFolder));
+      console.log('🎉 UPDATE COMPLETE:', JSON.stringify(updatedFolder));
       res.json(updatedFolder);
     } catch (error) {
-      console.error('❌ DIRECT UPDATE FAILED:', error);
+      console.error('💥 UPDATE ERROR:', error);
       res.status(500).json({ error: 'Failed to update folder' });
     }
   });
+
+  // Health check
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
+  });
+
+
 
   // WORKING FOLDER UPDATE ROUTE
   app.patch('/api/folders/:id/update', async (req, res) => {
