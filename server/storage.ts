@@ -137,11 +137,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateAssetFolder(id: number, updates: Partial<AssetFolder>): Promise<AssetFolder> {
+    console.log('Storage updateAssetFolder called with:', { id, updates });
+    
     const [updatedFolder] = await db
       .update(assetFolders)
       .set(updates)
       .where(eq(assetFolders.id, id))
       .returning();
+    
+    console.log('Storage update result:', updatedFolder);
     return updatedFolder;
   }
 
