@@ -298,7 +298,15 @@ export default function AssetLibrary() {
       </div>
 
       {/* Asset Grid */}
-      <div className="p-6">
+      <div className="p-6 relative">
+        {/* Global Drop Zone Overlay */}
+        {isDragging && (
+          <div className="absolute inset-0 bg-blue-50 bg-opacity-50 border-2 border-dashed border-blue-300 rounded-lg flex items-center justify-center z-10 pointer-events-none">
+            <div className="text-blue-600 font-medium text-lg">
+              Drop to organize your assets
+            </div>
+          </div>
+        )}
         {/* Breadcrumb Navigation */}
         {currentFolderId && (
           <div className="flex items-center space-x-2 mb-6 text-sm">
@@ -311,12 +319,48 @@ export default function AssetLibrary() {
         )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {/* Root Drop Zone */}
+          {currentFolderId && (
+            <Card 
+              className={`cursor-pointer hover:shadow-md transition-all group border-2 border-dashed ${
+                dropTarget === null && isDragging ? 'border-blue-500 bg-blue-50' : 'border-slate-300'
+              }`}
+              onDragOver={handleDragOver}
+              onDragEnter={(e) => handleDragEnter(e, null)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, null)}
+            >
+              <CardContent className="p-4">
+                <div className="flex flex-col items-center" onClick={() => setCurrentFolderId(undefined)}>
+                  <Folder className="h-8 w-8 text-slate-400 group-hover:text-blue-500 mb-2" />
+                  <span className="text-sm font-medium text-slate-700 text-center">← Back to Root</span>
+                  <span className="text-xs text-slate-500">folder</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* Folder Items */}
           {folders.map((folder) => (
-            <Card key={folder.id} className="cursor-pointer hover:shadow-md transition-shadow group">
+            <Card 
+              key={folder.id} 
+              className={`cursor-pointer hover:shadow-md transition-all group border-2 ${
+                dropTarget === folder.id && isDragging ? 'border-blue-500 bg-blue-50' : 'border-transparent hover:border-slate-200'
+              }`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, folder, 'folder')}
+              onDragEnd={handleDragEnd}
+              onDragOver={handleDragOver}
+              onDragEnter={(e) => handleDragEnter(e, folder.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, folder.id)}
+            >
               <CardContent className="p-4">
                 <div className="flex flex-col items-center" onClick={() => setCurrentFolderId(folder.id)}>
-                  <Folder className="h-8 w-8 text-slate-400 group-hover:text-blue-500 mb-2" />
+                  <div className="relative">
+                    <Folder className="h-8 w-8 text-slate-400 group-hover:text-blue-500 mb-2" />
+                    {isDragging && <Move className="h-3 w-3 text-blue-500 absolute -top-1 -right-1" />}
+                  </div>
                   <span className="text-sm font-medium text-slate-700 text-center">{folder.name}</span>
                   <span className="text-xs text-slate-500">folder</span>
                 </div>
@@ -326,7 +370,15 @@ export default function AssetLibrary() {
 
           {/* Asset Items */}
           {sortedAssets.map((asset) => (
-            <Card key={asset.id} className="group relative hover:shadow-md transition-shadow">
+            <Card 
+              key={asset.id} 
+              className={`group relative hover:shadow-md transition-all border-2 ${
+                draggedAsset?.id === asset.id ? 'opacity-50 border-blue-300' : 'border-transparent hover:border-slate-200'
+              }`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, asset, 'asset')}
+              onDragEnd={handleDragEnd}
+            >
               <CardContent className="p-3">
                 {/* Asset Preview */}
                 <div className="w-full h-24 bg-slate-100 rounded-lg overflow-hidden mb-3 flex items-center justify-center">
@@ -362,6 +414,9 @@ export default function AssetLibrary() {
                     {asset.type.toUpperCase()}
                   </Badge>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 cursor-move" title="Drag to move">
+                      <Move className="h-3 w-3 text-slate-400" />
+                    </Button>
                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                       <Edit className="h-3 w-3" />
                     </Button>
