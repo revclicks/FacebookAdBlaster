@@ -70,6 +70,28 @@ input:valid {
   background-color: white !important;
 }
 
+/* Fix yellow button and select backgrounds */
+button[data-variant="outline"] {
+  background-color: white !important;
+}
+
+button[data-state="open"] {
+  background-color: white !important;
+}
+
+select {
+  background-color: white !important;
+}
+
+[role="combobox"] {
+  background-color: white !important;
+}
+
+/* Specifically target outline buttons with yellow background */
+.border.border-input {
+  background-color: white !important;
+}
+
 .dark {
   --background: 2 6 23; /* #020617 - slate-950 */
   --foreground: 248 250 252; /* #F8FAFC - slate-50 */
