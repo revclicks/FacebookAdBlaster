@@ -59,14 +59,9 @@ export default function AssetLibrary() {
   // Fetch folders
   const { data: folders = [] } = useQuery({
     queryKey: ['/api/asset-folders'],
-    select: (data: AssetFolder[]) => {
-      console.log('Raw folder data:', data);
-      const filtered = data.filter(folder => 
-        currentFolderId ? folder.parentId === currentFolderId : folder.parentId === null
-      );
-      console.log('Filtered folders:', filtered, 'currentFolderId:', currentFolderId);
-      return filtered;
-    },
+    select: (data: AssetFolder[]) => data.filter(folder => 
+      currentFolderId ? folder.parentId === currentFolderId : folder.parentId === null
+    ),
     staleTime: 0,
     refetchOnMount: true
   });
@@ -96,6 +91,7 @@ export default function AssetLibrary() {
       apiRequest('PATCH', `/api/assets/${id}`, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/assets'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
       setEditingAssetId(null);
     },
   });
