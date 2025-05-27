@@ -59,7 +59,9 @@ export default function AssetLibrary() {
   // Fetch folders
   const { data: folders = [] } = useQuery({
     queryKey: ['/api/asset-folders'],
-    select: (data: AssetFolder[]) => data.filter(folder => folder.parentId === currentFolderId)
+    select: (data: AssetFolder[]) => data.filter(folder => folder.parentId === currentFolderId),
+    staleTime: 0,
+    refetchOnMount: true
   });
 
   // Fetch assets
