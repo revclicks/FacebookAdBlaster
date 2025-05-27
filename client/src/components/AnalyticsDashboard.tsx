@@ -20,6 +20,7 @@ import { useState } from "react";
 interface CampaignMetrics {
   campaignId: number;
   campaignName: string;
+  adAccountName: string;
   impressions: number;
   clicks: number;
   spend: number;
@@ -304,6 +305,7 @@ export default function AnalyticsDashboard() {
               <thead>
                 <tr className="border-b border-slate-200">
                   <th className="text-left py-3 px-4 font-medium text-slate-600">Campaign</th>
+                  <th className="text-left py-3 px-4 font-medium text-slate-600">Ad Account</th>
                   <th className="text-right py-3 px-4 font-medium text-slate-600">Spend</th>
                   <th className="text-right py-3 px-4 font-medium text-slate-600">Impressions</th>
                   <th className="text-right py-3 px-4 font-medium text-slate-600">Clicks</th>
@@ -323,6 +325,9 @@ export default function AnalyticsDashboard() {
                           <div className="text-sm text-slate-500">{campaign.dateRange}</div>
                         </div>
                       </td>
+                      <td className="py-3 px-4">
+                        <div className="font-medium text-slate-700">{campaign.adAccountName}</div>
+                      </td>
                       <td className="text-right py-3 px-4 font-medium">
                         {formatCurrency(campaign.spend)}
                       </td>
@@ -333,7 +338,7 @@ export default function AnalyticsDashboard() {
                         {formatNumber(campaign.clicks)}
                       </td>
                       <td className="text-right py-3 px-4">
-                        <Badge variant={campaign.ctr > 2 ? "default" : "secondary"}>
+                        <Badge variant={campaign.ctr > 2 ? "default" : "secondary"} className="bg-blue-100 text-blue-800 border-blue-200">
                           {formatPercentage(campaign.ctr)}
                         </Badge>
                       </td>
@@ -344,7 +349,7 @@ export default function AnalyticsDashboard() {
                         {formatNumber(campaign.conversions)}
                       </td>
                       <td className="text-right py-3 px-4">
-                        <Badge variant={campaign.roas > 3 ? "default" : "secondary"}>
+                        <Badge variant={campaign.roas > 3 ? "default" : "secondary"} className="bg-blue-100 text-blue-800 border-blue-200">
                           {campaign.roas.toFixed(2)}x
                         </Badge>
                       </td>
@@ -352,7 +357,7 @@ export default function AnalyticsDashboard() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={8} className="text-center py-8 text-slate-500">
+                    <td colSpan={9} className="text-center py-8 text-slate-500">
                       No campaign data available for the selected period
                     </td>
                   </tr>
