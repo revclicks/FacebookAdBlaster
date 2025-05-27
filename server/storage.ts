@@ -106,13 +106,15 @@ export class DatabaseStorage implements IStorage {
 
   // Asset Folders
   async getAssetFolders(userId: number, parentId?: number): Promise<AssetFolder[]> {
-    if (parentId !== undefined) {
-      return await db.select().from(assetFolders)
-        .where(and(eq(assetFolders.userId, userId), eq(assetFolders.parentId, parentId)))
-        .orderBy(asc(assetFolders.name));
-    } else {
+    // For root level folders (parentId is null/undefined)
+    if (parentId === undefined || parentId === null) {
       return await db.select().from(assetFolders)
         .where(and(eq(assetFolders.userId, userId), isNull(assetFolders.parentId)))
+        .orderBy(asc(assetFolders.name));
+    } else {
+      // For subfolders
+      return await db.select().from(assetFolders)
+        .where(and(eq(assetFolders.userId, userId), eq(assetFolders.parentId, parentId)))
         .orderBy(asc(assetFolders.name));
     }
   }

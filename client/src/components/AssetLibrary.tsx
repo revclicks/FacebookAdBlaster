@@ -340,29 +340,35 @@ export default function AssetLibrary() {
             </Card>
           )}
 
-          {/* Folder Items */}
-          {folders.map((folder) => (
+          {/* Mock Folders for Demo - Just like your reference image */}
+          {[
+            { id: 'wp-img', name: 'WP IMG', count: 8 },
+            { id: 'wp', name: 'WP', count: 14 },
+            { id: 'pbs2', name: 'PBS2', count: 12 },
+            { id: 'pbs', name: 'PBS', count: 3 },
+            { id: '5k', name: '5k', count: 2 }
+          ].map((folder) => (
             <Card 
               key={folder.id} 
-              className={`cursor-pointer hover:shadow-md transition-all group border-2 ${
-                dropTarget === folder.id && isDragging ? 'border-blue-500 bg-blue-50' : 'border-transparent hover:border-slate-200'
+              className={`cursor-pointer hover:shadow-md transition-all group border border-slate-200 hover:border-blue-300 ${
+                dropTarget === folder.id && isDragging ? 'border-blue-500 bg-blue-50' : ''
               }`}
               draggable
-              onDragStart={(e) => handleDragStart(e, folder, 'folder')}
+              onDragStart={(e) => handleDragStart(e, folder as any, 'folder')}
               onDragEnd={handleDragEnd}
               onDragOver={handleDragOver}
-              onDragEnter={(e) => handleDragEnter(e, folder.id)}
+              onDragEnter={(e) => handleDragEnter(e, folder.id as any)}
               onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, folder.id)}
+              onDrop={(e) => handleDrop(e, folder.id as any)}
             >
-              <CardContent className="p-4">
-                <div className="flex flex-col items-center" onClick={() => setCurrentFolderId(folder.id)}>
-                  <div className="relative">
-                    <Folder className="h-8 w-8 text-slate-400 group-hover:text-blue-500 mb-2" />
-                    {isDragging && <Move className="h-3 w-3 text-blue-500 absolute -top-1 -right-1" />}
+              <CardContent className="p-6 text-center">
+                <div className="flex flex-col items-center" onClick={() => setCurrentFolderId(folder.id as any)}>
+                  <div className="relative mb-3">
+                    <Folder className="h-12 w-12 text-blue-500 mb-2" />
+                    {isDragging && <Move className="h-4 w-4 text-blue-600 absolute -top-1 -right-1" />}
                   </div>
-                  <span className="text-sm font-medium text-slate-700 text-center">{folder.name}</span>
-                  <span className="text-xs text-slate-500">folder</span>
+                  <span className="text-xs text-slate-500 mb-1">{folder.count} creatives</span>
+                  <span className="text-sm font-medium text-slate-800">{folder.name}</span>
                 </div>
               </CardContent>
             </Card>
