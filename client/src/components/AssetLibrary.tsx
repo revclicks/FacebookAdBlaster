@@ -102,13 +102,21 @@ export default function AssetLibrary() {
 
   // Update folder mutation
   const updateFolderMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: number; updates: Partial<AssetFolder> }) =>
-      apiRequest('PATCH', `/api/asset-folders/${id}`, updates),
-    onSuccess: () => {
-      queryClient.removeQueries({ queryKey: ['/api/asset-folders'] });
-      setTimeout(() => {
-        queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
-      }, 100);
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<AssetFolder> }) => {
+      console.log('Frontend: Starting folder rename mutation', { id, updates });
+      return apiRequest('PATCH', `/api/asset-folders/${id}`, updates);
+    },
+    onSuccess: (data, variables) => {
+      console.log('Frontend: Folder rename mutation success', { data, variables });
+      console.log('Frontend: Starting cache invalidation...');
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'], exact: false });
+      queryClient.invalidateQueries({ queryKey: ['/api/assets'], exact: false });
+      
+      console.log('Frontend: Cache invalidation complete');
+    },
+    onError: (error, variables) => {
+      console.error('Frontend: Folder rename mutation failed', { error, variables });
     },
   });
 
