@@ -73,7 +73,7 @@ export default function AssetLibrary() {
   // Create folder mutation
   const createFolderMutation = useMutation({
     mutationFn: (data: { name: string; parentId?: number }) =>
-      apiRequest('/api/asset-folders', 'POST', data),
+      apiRequest('POST', '/api/asset-folders', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
       setShowNewFolderInput(false);
@@ -84,7 +84,7 @@ export default function AssetLibrary() {
   // Update asset mutation
   const updateAssetMutation = useMutation({
     mutationFn: ({ id, updates }: { id: number; updates: Partial<Asset> }) =>
-      apiRequest(`/api/assets/${id}`, 'PATCH', updates),
+      apiRequest('PATCH', `/api/assets/${id}`, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/assets'] });
       setEditingAssetId(null);
@@ -94,7 +94,7 @@ export default function AssetLibrary() {
   // Delete folder mutation
   const deleteFolderMutation = useMutation({
     mutationFn: (folderId: number) =>
-      apiRequest(`/api/asset-folders/${folderId}`, 'DELETE'),
+      apiRequest('DELETE', `/api/asset-folders/${folderId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
     },
@@ -103,7 +103,7 @@ export default function AssetLibrary() {
   // Delete asset mutation
   const deleteAssetMutation = useMutation({
     mutationFn: (assetId: number) =>
-      apiRequest(`/api/assets/${assetId}`, 'DELETE'),
+      apiRequest('DELETE', `/api/assets/${assetId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/assets'] });
     },
