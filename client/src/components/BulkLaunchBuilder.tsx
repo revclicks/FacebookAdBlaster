@@ -203,7 +203,7 @@ export default function BulkLaunchBuilder() {
       case 'valid':
         return 'bg-green-500';
       case 'validating':
-        return 'bg-yellow-400';
+        return 'bg-blue-400';
       case 'invalid':
         return 'bg-red-500';
       default:
@@ -441,7 +441,7 @@ export default function BulkLaunchBuilder() {
               <span className="text-slate-600">Valid: <span className="font-medium">{validCount}</span></span>
             </div>
             <div className="flex items-center space-x-2">
-              <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+              <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
               <span className="text-slate-600">Validating: <span className="font-medium">{validatingCount}</span></span>
             </div>
             <div className="flex items-center space-x-2">

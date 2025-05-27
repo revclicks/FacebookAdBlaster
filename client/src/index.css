@@ -112,21 +112,27 @@ select {
   box-shadow: 0 0 0 2px #dbeafe !important; /* light blue ring */
 }
 
-/* Target specific yellow elements */
+/* Force all cards and upload elements to be white */
+.border-dashed {
+  background-color: white !important;
+}
+
+.cursor-pointer {
+  background-color: white !important;
+}
+
+/* Override any yellow classes completely */
 .bg-yellow-400,
 .bg-yellow-500,
-.bg-yellow-600,
+.bg-yellow-300,
 .bg-yellow-200,
 .bg-yellow-100 {
   background-color: white !important;
 }
 
-/* Target any remaining yellow styling */
-button[style*="yellow"],
-div[style*="yellow"],
-*[class*="yellow"] {
-  background-color: white !important;
-  border-color: #d1d5db !important;
+/* Force tab navigation to be clean */
+nav button {
+  background-color: transparent !important;
 }
 
 .dark {
