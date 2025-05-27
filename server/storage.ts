@@ -26,6 +26,7 @@ export interface IStorage {
   // Asset Folders
   getAssetFolders(userId: number, parentId?: number): Promise<AssetFolder[]>;
   createAssetFolder(folder: InsertAssetFolder): Promise<AssetFolder>;
+  updateAssetFolder(id: number, updates: Partial<AssetFolder>): Promise<AssetFolder>;
   deleteAssetFolder(id: number): Promise<void>;
   
   // Assets
@@ -133,6 +134,15 @@ export class DatabaseStorage implements IStorage {
       .values(folder)
       .returning();
     return newFolder;
+  }
+
+  async updateAssetFolder(id: number, updates: Partial<AssetFolder>): Promise<AssetFolder> {
+    const [updatedFolder] = await db
+      .update(assetFolders)
+      .set(updates)
+      .where(eq(assetFolders.id, id))
+      .returning();
+    return updatedFolder;
   }
 
   async deleteAssetFolder(id: number): Promise<void> {

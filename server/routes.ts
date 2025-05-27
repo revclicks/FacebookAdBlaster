@@ -169,6 +169,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch('/api/asset-folders/:id', async (req, res) => {
+    try {
+      const folderId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      // Update the folder
+      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
+      res.json(updatedFolder);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.delete('/api/asset-folders/:id', async (req, res) => {
     try {
       await storage.deleteAssetFolder(parseInt(req.params.id));

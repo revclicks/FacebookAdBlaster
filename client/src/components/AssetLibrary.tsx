@@ -98,6 +98,15 @@ export default function AssetLibrary() {
     },
   });
 
+  // Update folder mutation
+  const updateFolderMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: number; updates: Partial<AssetFolder> }) =>
+      apiRequest('PATCH', `/api/asset-folders/${id}`, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
+    },
+  });
+
   // Delete folder mutation
   const deleteFolderMutation = useMutation({
     mutationFn: (folderId: number) =>
@@ -139,7 +148,10 @@ export default function AssetLibrary() {
   const handleRenameFolder = (folderId: number, currentName: string) => {
     const newName = prompt('Enter new folder name:', currentName);
     if (newName && newName !== currentName) {
-      // TODO: Implement folder rename mutation
+      updateFolderMutation.mutate({
+        id: folderId,
+        updates: { name: newName.trim() }
+      });
     }
   };
 
