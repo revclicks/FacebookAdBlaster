@@ -171,15 +171,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch('/api/asset-folders/:id', authenticateUser, async (req, res) => {
     try {
+      console.log('PATCH route hit - folder ID:', req.params.id);
+      console.log('PATCH route - request body:', JSON.stringify(req.body));
+      
       const folderId = parseInt(req.params.id);
       const updates = req.body;
       
-      console.log('Updating folder:', folderId, 'with updates:', updates);
+      console.log('Parsed folder ID:', folderId);
+      console.log('Updates object:', JSON.stringify(updates));
       
       // Update the folder
       const updatedFolder = await storage.updateAssetFolder(folderId, updates);
       
-      console.log('Updated folder result:', updatedFolder);
+      console.log('Storage update completed, result:', JSON.stringify(updatedFolder));
       res.json(updatedFolder);
     } catch (error) {
       console.error('Error updating folder:', error);
