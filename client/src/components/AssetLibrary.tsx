@@ -105,8 +105,10 @@ export default function AssetLibrary() {
     mutationFn: ({ id, updates }: { id: number; updates: Partial<AssetFolder> }) =>
       apiRequest('PATCH', `/api/asset-folders/${id}`, updates),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
-      queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
+      queryClient.removeQueries({ queryKey: ['/api/asset-folders'] });
+      setTimeout(() => {
+        queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
+      }, 100);
     },
   });
 
