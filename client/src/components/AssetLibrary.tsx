@@ -142,6 +142,19 @@ export default function AssetLibrary() {
     },
   });
 
+  const updateAssetMutation = useMutation({
+    mutationFn: async ({ assetId, updates }: { assetId: number, updates: Partial<Asset> }) => {
+      await apiRequest("PATCH", `/api/assets/${assetId}`, updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assets"] });
+      toast({ title: "Asset updated successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error updating asset", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleCreateFolder = () => {
     const name = prompt("Enter folder name:");
     if (name) {
@@ -479,7 +492,18 @@ export default function AssetLibrary() {
                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0 cursor-move" title="Drag to move">
                       <Move className="h-3 w-3 text-slate-400" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 w-6 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newName = prompt("Enter new asset name:", asset.name);
+                        if (newName && newName !== asset.name) {
+                          updateAssetMutation.mutate({ assetId: asset.id, updates: { name: newName } });
+                        }
+                      }}
+                    >
                       <Edit className="h-3 w-3" />
                     </Button>
                     <Button 

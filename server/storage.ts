@@ -112,13 +112,14 @@ export class DatabaseStorage implements IStorage {
         const result = await db.select().from(assetFolders)
           .where(and(eq(assetFolders.userId, userId), isNull(assetFolders.parentId)))
           .orderBy(asc(assetFolders.name));
-        return result;
+        console.log('Database result for folders:', result);
+        return result as AssetFolder[];
       } else {
         // For subfolders
         const result = await db.select().from(assetFolders)
           .where(and(eq(assetFolders.userId, userId), eq(assetFolders.parentId, parentId)))
           .orderBy(asc(assetFolders.name));
-        return result;
+        return result as AssetFolder[];
       }
     } catch (error) {
       console.error('Error fetching asset folders:', error);
