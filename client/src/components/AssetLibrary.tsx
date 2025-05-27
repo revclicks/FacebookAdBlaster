@@ -61,7 +61,9 @@ export default function AssetLibrary() {
     queryKey: ['/api/asset-folders'],
     select: (data: AssetFolder[]) => {
       console.log('Raw folder data:', data);
-      const filtered = data.filter(folder => folder.parentId === currentFolderId);
+      const filtered = data.filter(folder => 
+        currentFolderId ? folder.parentId === currentFolderId : folder.parentId === null
+      );
       console.log('Filtered folders:', filtered, 'currentFolderId:', currentFolderId);
       return filtered;
     },
