@@ -416,7 +416,11 @@ export default function AssetLibrary() {
                     ) : (
                       <>
                         <span className="text-xs text-slate-500 mb-1">
-                          {assets.filter(asset => asset.folderId === folder.id).length} creatives
+                          {(() => {
+                            const count = assets.filter(asset => asset.folderId === folder.id).length;
+                            console.log(`Folder ${folder.name} (ID: ${folder.id}) has ${count} assets. All assets:`, assets);
+                            return count;
+                          })()} creatives
                         </span>
                         <span className="text-sm font-medium text-slate-800">{folder.name}</span>
                       </>
