@@ -52,6 +52,24 @@
   --error-700: 185 28 28; /* #B91C1C */
 }
 
+/* Remove yellow autofill background */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: black !important;
+}
+
+/* Remove any yellow validation states */
+input:invalid {
+  background-color: white !important;
+}
+
+input:valid {
+  background-color: white !important;
+}
+
 .dark {
   --background: 2 6 23; /* #020617 - slate-950 */
   --foreground: 248 250 252; /* #F8FAFC - slate-50 */
