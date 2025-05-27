@@ -112,7 +112,7 @@ export class DatabaseStorage implements IStorage {
         .orderBy(asc(assetFolders.name));
     } else {
       return await db.select().from(assetFolders)
-        .where(and(eq(assetFolders.userId, userId), eq(assetFolders.parentId, null)))
+        .where(eq(assetFolders.userId, userId))
         .orderBy(asc(assetFolders.name));
     }
   }
