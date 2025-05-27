@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { apiRequest } from "@/lib/queryClient";
 import UploadAssetModal from "@/components/modals/UploadAssetModal";
-import { Upload, FolderPlus, Search, Grid, Folder, FileText, Edit, Trash2, Play, Plus } from "lucide-react";
+import { Upload, FolderPlus, Search, Grid, Folder, FileText, Edit, Trash2, Play, Plus, Move } from "lucide-react";
 
 interface Asset {
   id: number;
@@ -39,6 +39,10 @@ export default function AssetLibrary() {
   const [sortBy, setSortBy] = useState("name");
   const [selectedAssets, setSelectedAssets] = useState<number[]>([]);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [draggedAsset, setDraggedAsset] = useState<Asset | null>(null);
+  const [draggedFolder, setDraggedFolder] = useState<AssetFolder | null>(null);
+  const [dropTarget, setDropTarget] = useState<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
 
   const { data: folders = [] } = useQuery<AssetFolder[]>({
@@ -79,6 +83,36 @@ export default function AssetLibrary() {
     },
   });
 
+  const moveAssetMutation = useMutation({
+    mutationFn: async ({ assetId, targetFolderId }: { assetId: number, targetFolderId: number | null }) => {
+      await apiRequest("PATCH", `/api/assets/${assetId}`, {
+        folderId: targetFolderId
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assets"] });
+      toast({ title: "Asset moved successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error moving asset", description: error.message, variant: "destructive" });
+    },
+  });
+
+  const moveFolderMutation = useMutation({
+    mutationFn: async ({ folderId, targetFolderId }: { folderId: number, targetFolderId: number | null }) => {
+      await apiRequest("PATCH", `/api/asset-folders/${folderId}`, {
+        parentId: targetFolderId
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/asset-folders"] });
+      toast({ title: "Folder moved successfully" });
+    },
+    onError: (error) => {
+      toast({ title: "Error moving folder", description: error.message, variant: "destructive" });
+    },
+  });
+
   const handleCreateFolder = () => {
     const name = prompt("Enter folder name:");
     if (name) {
@@ -90,6 +124,73 @@ export default function AssetLibrary() {
     if (confirm("Are you sure you want to delete this asset?")) {
       deleteAssetMutation.mutate(assetId);
     }
+  };
+
+  // Drag and Drop Handlers
+  const handleDragStart = (e: React.DragEvent, item: Asset | AssetFolder, type: 'asset' | 'folder') => {
+    setIsDragging(true);
+    if (type === 'asset') {
+      setDraggedAsset(item as Asset);
+      e.dataTransfer.setData('text/plain', `asset-${item.id}`);
+    } else {
+      setDraggedFolder(item as AssetFolder);
+      e.dataTransfer.setData('text/plain', `folder-${item.id}`);
+    }
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    setDraggedAsset(null);
+    setDraggedFolder(null);
+    setDropTarget(null);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDragEnter = (e: React.DragEvent, targetFolderId: number | null) => {
+    e.preventDefault();
+    setDropTarget(targetFolderId);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    // Only clear drop target if we're actually leaving the drop zone
+    if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+      setDropTarget(null);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetFolderId: number | null) => {
+    e.preventDefault();
+    
+    const dragData = e.dataTransfer.getData('text/plain');
+    const [type, itemId] = dragData.split('-');
+    
+    if (type === 'asset' && draggedAsset) {
+      // Prevent dropping asset into itself or current folder
+      if (draggedAsset.id === parseInt(itemId) && draggedAsset.folderId !== targetFolderId) {
+        moveAssetMutation.mutate({
+          assetId: draggedAsset.id,
+          targetFolderId
+        });
+      }
+    } else if (type === 'folder' && draggedFolder) {
+      // Prevent dropping folder into itself or current parent
+      if (draggedFolder.id === parseInt(itemId) && draggedFolder.parentId !== targetFolderId) {
+        // Additional check to prevent circular references
+        if (targetFolderId !== draggedFolder.id) {
+          moveFolderMutation.mutate({
+            folderId: draggedFolder.id,
+            targetFolderId
+          });
+        }
+      }
+    }
+    
+    handleDragEnd();
   };
 
   const filteredAssets = assets.filter(asset => {
