@@ -66,32 +66,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
-  // Direct SQL update workaround for folder renaming
-  app.post('/api/sql-update', async (req: any, res: any) => {
-    console.log('🔧 SQL UPDATE WORKAROUND:', req.body.query);
+  // Direct SQL update workaround for folder renaming  
+  app.post('/api/sql-update', (req: any, res: any) => {
+    console.log('🔧 SQL UPDATE ROUTE HIT');
+    console.log('📦 Request body:', req.body);
     
-    try {
-      const { query } = req.body;
-      
-      // Basic security check - only allow UPDATE queries on asset_folders
-      if (!query.toLowerCase().includes('update asset_folders') || 
-          query.toLowerCase().includes('drop') || 
-          query.toLowerCase().includes('delete')) {
-        return res.status(400).json({ error: 'Invalid query' });
-      }
-      
-      // Execute the query using the existing pool
-      const { pool } = require('./db');
-      const result = await pool.query(query);
-      
-      console.log('✅ SQL UPDATE SUCCESS:', result);
-      res.setHeader('Content-Type', 'application/json');
-      res.json({ success: true, result });
-    } catch (error: any) {
-      console.error('❌ SQL UPDATE ERROR:', error);
-      res.setHeader('Content-Type', 'application/json');
-      res.status(500).json({ error: error?.message || 'Unknown error' });
-    }
+    // Simple test response first
+    res.setHeader('Content-Type', 'application/json');
+    res.json({ 
+      success: true, 
+      message: 'SQL update route working',
+      receivedQuery: req.body?.query || 'no query received'
+    });
   });
 
 
