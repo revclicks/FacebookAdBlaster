@@ -1,0 +1,382 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Facebook-inspired color scheme */
+  --background: 248 250 252; /* #F8FAFC - slate-50 */
+  --foreground: 15 23 42; /* #0F172A - slate-900 */
+  --muted: 241 245 249; /* #F1F5F9 - slate-100 */
+  --muted-foreground: 100 116 139; /* #64748B - slate-500 */
+  --popover: 255 255 255; /* #FFFFFF */
+  --popover-foreground: 15 23 42; /* #0F172A - slate-900 */
+  --card: 255 255 255; /* #FFFFFF */
+  --card-foreground: 15 23 42; /* #0F172A - slate-900 */
+  --border: 226 232 240; /* #E2E8F0 - slate-200 */
+  --input: 226 232 240; /* #E2E8F0 - slate-200 */
+  --primary: 24 119 242; /* #1877F2 - Facebook Blue */
+  --primary-foreground: 255 255 255; /* #FFFFFF */
+  --secondary: 241 245 249; /* #F1F5F9 - slate-100 */
+  --secondary-foreground: 15 23 42; /* #0F172A - slate-900 */
+  --accent: 239 246 255; /* #EFF6FF - blue-50 */
+  --accent-foreground: 29 78 216; /* #1D4ED8 - blue-700 */
+  --destructive: 239 68 68; /* #EF4444 - red-500 */
+  --destructive-foreground: 255 255 255; /* #FFFFFF */
+  --ring: 24 119 242; /* #1877F2 - Facebook Blue */
+  --radius: 0.5rem;
+
+  /* Additional Facebook-specific colors */
+  --facebook-50: 239 246 255; /* #EFF6FF */
+  --facebook-100: 219 234 254; /* #DBEAFE */
+  --facebook-500: 24 119 242; /* #1877F2 */
+  --facebook-600: 37 99 235; /* #2563EB */
+  --facebook-700: 29 78 216; /* #1D4ED8 */
+
+  /* Status colors */
+  --success-50: 240 253 244; /* #F0FDF4 */
+  --success-100: 220 252 231; /* #DCFCE7 */
+  --success-500: 34 197 94; /* #22C55E */
+  --success-600: 22 163 74; /* #16A34A */
+  --success-700: 21 128 61; /* #15803D */
+
+  --warning-50: 255 251 235; /* #FFFBEB */
+  --warning-100: 254 243 199; /* #FEF3C7 */
+  --warning-500: 245 158 11; /* #F59E0B */
+  --warning-600: 217 119 6; /* #D97706 */
+  --warning-700: 180 83 9; /* #B45309 */
+
+  --error-50: 254 242 242; /* #FEF2F2 */
+  --error-100: 254 226 226; /* #FEE2E2 */
+  --error-500: 239 68 68; /* #EF4444 */
+  --error-600: 220 38 38; /* #DC2626 */
+  --error-700: 185 28 28; /* #B91C1C */
+}
+
+.dark {
+  --background: 2 6 23; /* #020617 - slate-950 */
+  --foreground: 248 250 252; /* #F8FAFC - slate-50 */
+  --muted: 15 23 42; /* #0F172A - slate-900 */
+  --muted-foreground: 148 163 184; /* #94A3B8 - slate-400 */
+  --popover: 2 6 23; /* #020617 - slate-950 */
+  --popover-foreground: 248 250 252; /* #F8FAFC - slate-50 */
+  --card: 2 6 23; /* #020617 - slate-950 */
+  --card-foreground: 248 250 252; /* #F8FAFC - slate-50 */
+  --border: 30 41 59; /* #1E293B - slate-800 */
+  --input: 30 41 59; /* #1E293B - slate-800 */
+  --primary: 24 119 242; /* #1877F2 - Facebook Blue */
+  --primary-foreground: 255 255 255; /* #FFFFFF */
+  --secondary: 30 41 59; /* #1E293B - slate-800 */
+  --secondary-foreground: 248 250 252; /* #F8FAFC - slate-50 */
+  --accent: 30 41 59; /* #1E293B - slate-800 */
+  --accent-foreground: 148 163 184; /* #94A3B8 - slate-400 */
+  --destructive: 220 38 38; /* #DC2626 - red-600 */
+  --destructive-foreground: 248 250 252; /* #F8FAFC - slate-50 */
+  --ring: 24 119 242; /* #1877F2 - Facebook Blue */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Custom scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400;
+  }
+
+  /* Ensure smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Focus styles for accessibility */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+  }
+
+  /* Custom utility classes */
+  .text-facebook {
+    color: hsl(var(--facebook-500));
+  }
+
+  .bg-facebook {
+    background-color: hsl(var(--facebook-500));
+  }
+
+  .border-facebook {
+    border-color: hsl(var(--facebook-500));
+  }
+
+  .hover\:bg-facebook:hover {
+    background-color: hsl(var(--facebook-600));
+  }
+
+  /* Status indicator styles */
+  .status-pending {
+    @apply bg-slate-100 text-slate-600;
+  }
+
+  .status-processing {
+    @apply bg-yellow-100 text-yellow-700;
+  }
+
+  .status-completed {
+    @apply bg-green-100 text-green-700;
+  }
+
+  .status-failed {
+    @apply bg-red-100 text-red-700;
+  }
+
+  .status-cancelled {
+    @apply bg-slate-100 text-slate-600;
+  }
+
+  /* Animation for processing indicators */
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Table row hover effects */
+  .table-row-hover {
+    @apply hover:bg-slate-50 transition-colors duration-150;
+  }
+
+  /* Card hover effects */
+  .card-hover {
+    @apply hover:shadow-lg transition-shadow duration-200;
+  }
+
+  /* Button loading state */
+  .btn-loading {
+    @apply opacity-75 cursor-not-allowed;
+  }
+
+  /* File upload drop zone styles */
+  .upload-zone {
+    @apply border-2 border-dashed border-slate-300 hover:border-blue-400 hover:bg-blue-50 transition-colors;
+  }
+
+  .upload-zone.drag-over {
+    @apply border-blue-500 bg-blue-100;
+  }
+
+  /* Asset grid styles */
+  .asset-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4;
+  }
+
+  .asset-item {
+    @apply group relative bg-white border border-slate-200 rounded-lg overflow-hidden hover:shadow-md transition-all duration-200;
+  }
+
+  .asset-item.selected {
+    @apply ring-2 ring-blue-500 border-blue-500;
+  }
+
+  /* Progress bar custom styles */
+  .progress-bar {
+    @apply w-full bg-slate-200 rounded-full h-2 overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full transition-all duration-300 ease-out;
+  }
+
+  /* Modal backdrop */
+  .modal-backdrop {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50;
+  }
+
+  /* Tooltip styles */
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs text-white bg-slate-900 rounded shadow-lg;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply animate-spin h-4 w-4 border-2 border-slate-300 border-t-blue-600 rounded-full;
+  }
+
+  /* Error message styles */
+  .error-message {
+    @apply text-red-600 text-sm mt-1;
+  }
+
+  /* Success message styles */
+  .success-message {
+    @apply text-green-600 text-sm mt-1;
+  }
+
+  /* Breadcrumb styles */
+  .breadcrumb {
+    @apply flex items-center space-x-2 text-sm text-slate-600;
+  }
+
+  .breadcrumb-separator {
+    @apply text-slate-400;
+  }
+
+  .breadcrumb-link {
+    @apply text-blue-600 hover:text-blue-700 cursor-pointer;
+  }
+
+  /* Badge styles for different types */
+  .badge-image {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .badge-video {
+    @apply bg-purple-100 text-purple-800;
+  }
+
+  .badge-text {
+    @apply bg-green-100 text-green-800;
+  }
+
+  /* Responsive text truncation */
+  .text-truncate {
+    @apply truncate;
+  }
+
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Custom animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out;
+}
+
+.animate-slide-out {
+  animation: slideOut 0.2s ease-out;
+}
+
+/* Progress bar for file uploads */
+.upload-progress {
+  @apply relative w-full h-2 bg-slate-200 rounded-full overflow-hidden;
+}
+
+.upload-progress-fill {
+  @apply h-full bg-blue-500 transition-all duration-300 ease-out;
+}
+
+/* Table styles */
+.data-table {
+  @apply w-full border-collapse;
+}
+
+.data-table th {
+  @apply bg-slate-100 border-b border-slate-200 px-4 py-3 text-left text-sm font-medium text-slate-700;
+}
+
+.data-table td {
+  @apply border-b border-slate-100 px-4 py-3 text-sm text-slate-900;
+}
+
+.data-table tr:hover {
+  @apply bg-slate-50;
+}
+
+/* Form validation styles */
+.form-field-error input,
+.form-field-error textarea,
+.form-field-error select {
+  @apply border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500;
+}
+
+.form-field-valid input,
+.form-field-valid textarea,
+.form-field-valid select {
+  @apply border-green-300 bg-green-50 focus:border-green-500 focus:ring-green-500;
+}
+
+/* Loading states */
+.loading-skeleton {
+  @apply animate-pulse bg-slate-200 rounded;
+}
+
+.loading-shimmer {
+  @apply relative overflow-hidden bg-slate-200 rounded;
+}
+
+.loading-shimmer::after {
+  content: '';
+  @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/60 to-transparent;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    @apply text-black bg-white;
+  }
+  
+  .print-break {
+    page-break-before: always;
+  }
+}

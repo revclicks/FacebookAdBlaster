@@ -1,0 +1,427 @@
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { storage } from "./storage";
+import { insertUserSchema, insertFacebookAccountSchema, insertAssetFolderSchema, insertAssetSchema, insertCampaignSchema } from "@shared/schema";
+import { facebookApi } from "./facebook-api";
+import { jobQueue } from "./queue";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+// Configure multer for file uploads
+const uploadDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const upload = multer({
+  dest: uploadDir,
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp|mp4|mov|avi|txt|json/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    
+    if (mimetype && extname) {
+      return cb(null, true);
+    } else {
+      cb(new Error('Invalid file type'));
+    }
+  }
+});
+
+// Mock user authentication middleware
+async function authenticateUser(req: any, res: any, next: any) {
+  // In a real app, this would verify JWT tokens or session cookies
+  const userId = req.headers['x-user-id'] || '1';
+  
+  // For demo purposes, get existing user or create one
+  let user = await storage.getUser(parseInt(userId));
+  if (!user) {
+    // Try to get user by username first
+    user = await storage.getUserByUsername('demo_user');
+    if (!user) {
+      // Create a demo user only if it doesn't exist
+      user = await storage.createUser({
+        username: 'demo_user',
+        password: 'demo_password',
+        email: 'demo@example.com',
+        name: 'Demo User'
+      });
+    }
+  }
+  
+  req.user = user;
+  next();
+}
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check
+  app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
+  });
+
+  // Apply authentication to all API routes
+  app.use('/api', authenticateUser);
+
+  // Facebook OAuth routes
+  app.get('/api/facebook/auth-url', (req, res) => {
+    const authUrl = facebookApi.getAuthUrl();
+    res.json({ authUrl });
+  });
+
+  app.post('/api/facebook/exchange-token', async (req, res) => {
+    try {
+      const { code } = req.body;
+      const tokenData = await facebookApi.exchangeCodeForToken(code);
+      const userInfo = await facebookApi.getUserInfo(tokenData.access_token);
+      const accountInfo = await facebookApi.getAdAccountInfo(tokenData.access_token);
+      
+      // Store the Facebook account
+      const facebookAccount = await storage.createFacebookAccount({
+        userId: req.user.id,
+        facebookAccountId: accountInfo.id,
+        name: accountInfo.name,
+        accessToken: tokenData.access_token,
+        tokenExpiresAt: tokenData.expires_at ? new Date(tokenData.expires_at * 1000) : null,
+        permissions: tokenData.scope?.split(',') || [],
+        isActive: true,
+      });
+
+      res.json({ account: facebookAccount });
+    } catch (error) {
+      console.error('Facebook token exchange error:', error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Facebook Accounts
+  app.get('/api/facebook-accounts', async (req, res) => {
+    try {
+      const accounts = await storage.getFacebookAccounts(req.user.id);
+      res.json(accounts);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/facebook-accounts/:id/refresh', async (req, res) => {
+    try {
+      const account = await storage.getFacebookAccount(parseInt(req.params.id));
+      if (!account || account.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Account not found' });
+      }
+
+      const newTokenData = await facebookApi.refreshAccessToken(account.accessToken);
+      const updatedAccount = await storage.updateFacebookAccount(account.id, {
+        accessToken: newTokenData.access_token,
+        tokenExpiresAt: newTokenData.expires_at ? new Date(newTokenData.expires_at * 1000) : null,
+      });
+
+      res.json(updatedAccount);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/facebook-accounts/:id', async (req, res) => {
+    try {
+      const account = await storage.getFacebookAccount(parseInt(req.params.id));
+      if (!account || account.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Account not found' });
+      }
+
+      await storage.deleteFacebookAccount(account.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Asset Folders
+  app.get('/api/asset-folders', async (req, res) => {
+    try {
+      const parentId = req.query.parentId ? parseInt(req.query.parentId as string) : undefined;
+      const folders = await storage.getAssetFolders(req.user.id, parentId);
+      res.json(folders);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/asset-folders', async (req, res) => {
+    try {
+      const folderData = insertAssetFolderSchema.parse({
+        ...req.body,
+        userId: req.user.id,
+      });
+      const folder = await storage.createAssetFolder(folderData);
+      res.json(folder);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/asset-folders/:id', async (req, res) => {
+    try {
+      await storage.deleteAssetFolder(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Assets
+  app.get('/api/assets', async (req, res) => {
+    try {
+      const folderId = req.query.folderId ? parseInt(req.query.folderId as string) : undefined;
+      const assets = await storage.getAssets(req.user.id, folderId);
+      res.json(assets);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/assets/upload', upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const { folderId, name } = req.body;
+      const assetType = req.file.mimetype.startsWith('image/') ? 'image' : 
+                       req.file.mimetype.startsWith('video/') ? 'video' : 'text';
+
+      const assetData = insertAssetSchema.parse({
+        userId: req.user.id,
+        folderId: folderId ? parseInt(folderId) : null,
+        name: name || req.file.originalname,
+        type: assetType,
+        fileName: req.file.originalname,
+        filePath: req.file.path,
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype,
+        metadata: {},
+      });
+
+      const asset = await storage.createAsset(assetData);
+      res.json(asset);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/assets/text', async (req, res) => {
+    try {
+      const { name, textContent, folderId } = req.body;
+      
+      const assetData = insertAssetSchema.parse({
+        userId: req.user.id,
+        folderId: folderId ? parseInt(folderId) : null,
+        name,
+        type: 'text',
+        textContent,
+        metadata: {},
+      });
+
+      const asset = await storage.createAsset(assetData);
+      res.json(asset);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/assets/:id', async (req, res) => {
+    try {
+      const asset = await storage.getAsset(parseInt(req.params.id));
+      if (asset && asset.filePath) {
+        // Delete the file from disk
+        try {
+          fs.unlinkSync(asset.filePath);
+        } catch (err) {
+          console.error('Error deleting file:', err);
+        }
+      }
+      
+      await storage.deleteAsset(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Serve uploaded files
+  app.get('/api/assets/:id/file', async (req, res) => {
+    try {
+      const asset = await storage.getAsset(parseInt(req.params.id));
+      if (!asset || !asset.filePath || asset.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Asset not found' });
+      }
+
+      if (!fs.existsSync(asset.filePath)) {
+        return res.status(404).json({ error: 'File not found' });
+      }
+
+      res.setHeader('Content-Type', asset.mimeType || 'application/octet-stream');
+      res.sendFile(path.resolve(asset.filePath));
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Campaigns
+  app.get('/api/campaigns', async (req, res) => {
+    try {
+      const campaigns = await storage.getCampaigns(req.user.id);
+      res.json(campaigns);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/campaigns', async (req, res) => {
+    try {
+      const campaignData = insertCampaignSchema.parse({
+        ...req.body,
+        userId: req.user.id,
+      });
+      const campaign = await storage.createCampaign(campaignData);
+      res.json(campaign);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.put('/api/campaigns/:id', async (req, res) => {
+    try {
+      const campaign = await storage.getCampaign(parseInt(req.params.id));
+      if (!campaign || campaign.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+
+      const updated = await storage.updateCampaign(campaign.id, req.body);
+      res.json(updated);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.delete('/api/campaigns/:id', async (req, res) => {
+    try {
+      const campaign = await storage.getCampaign(parseInt(req.params.id));
+      if (!campaign || campaign.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+
+      await storage.deleteCampaign(campaign.id);
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Campaign Submission
+  app.post('/api/campaigns/bulk-submit', async (req, res) => {
+    try {
+      const { campaignIds } = req.body;
+      
+      if (!Array.isArray(campaignIds) || campaignIds.length === 0) {
+        return res.status(400).json({ error: 'Campaign IDs are required' });
+      }
+
+      const submittedJobs = [];
+      
+      for (const campaignId of campaignIds) {
+        const campaign = await storage.getCampaign(campaignId);
+        if (!campaign || campaign.userId !== req.user.id) {
+          continue;
+        }
+
+        // Add job to queue
+        const jobId = await jobQueue.addCampaignSubmissionJob(campaign);
+        
+        // Create submission job record
+        const submissionJob = await storage.createSubmissionJob({
+          userId: req.user.id,
+          campaignId: campaign.id,
+          jobId,
+          status: 'pending',
+          progress: 0,
+        });
+
+        submittedJobs.push(submissionJob);
+      }
+
+      res.json({ jobs: submittedJobs });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Submission Jobs
+  app.get('/api/submission-jobs', async (req, res) => {
+    try {
+      const jobs = await storage.getSubmissionJobs(req.user.id);
+      res.json(jobs);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get('/api/submission-jobs/stats', async (req, res) => {
+    try {
+      const stats = await storage.getJobStats(req.user.id);
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/submission-jobs/:id/cancel', async (req, res) => {
+    try {
+      const job = await storage.getSubmissionJob(parseInt(req.params.id));
+      if (!job || job.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Job not found' });
+      }
+
+      await jobQueue.cancelJob(job.jobId);
+      await storage.updateSubmissionJob(job.id, { status: 'cancelled' });
+      
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/submission-jobs/:id/retry', async (req, res) => {
+    try {
+      const job = await storage.getSubmissionJob(parseInt(req.params.id));
+      if (!job || job.userId !== req.user.id) {
+        return res.status(404).json({ error: 'Job not found' });
+      }
+
+      const campaign = await storage.getCampaign(job.campaignId);
+      if (!campaign) {
+        return res.status(404).json({ error: 'Campaign not found' });
+      }
+
+      // Add new job to queue
+      const newJobId = await jobQueue.addCampaignSubmissionJob(campaign);
+      await storage.updateSubmissionJob(job.id, {
+        jobId: newJobId,
+        status: 'pending',
+        progress: 0,
+        errorMessage: null,
+      });
+
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  const httpServer = createServer(app);
+  return httpServer;
+}
