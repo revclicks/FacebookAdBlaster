@@ -144,9 +144,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/asset-folders', async (req, res) => {
     try {
       const parentId = req.query.parentId ? parseInt(req.query.parentId as string) : undefined;
-      const folders = await storage.getAssetFolders(1, parentId); // Use hardcoded user ID 1 for now
+      const userId = req.user?.id || 1; // Default to user 1 if no auth
+      console.log('Fetching folders for user:', userId);
+      const folders = await storage.getAssetFolders(userId, parentId);
+      console.log('Found folders:', folders.length);
       res.json(folders);
     } catch (error) {
+      console.error('Error fetching folders:', error);
       res.status(500).json({ error: error.message });
     }
   });
