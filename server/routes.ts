@@ -63,6 +63,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
+  // DIRECT FOLDER RENAME - No middleware conflicts
+  app.patch('/api/rename-folder/:id', async (req, res) => {
+    console.log('🚀 DIRECT RENAME ROUTE EXECUTING! Folder ID:', req.params.id);
+    console.log('📝 Body received:', JSON.stringify(req.body));
+    
+    try {
+      const folderId = parseInt(req.params.id);
+      const { name } = req.body;
+      
+      console.log('🔄 Updating folder', folderId, 'to name:', name);
+      
+      // Direct database update
+      const updatedFolder = await storage.updateAssetFolder(folderId, { name });
+      
+      console.log('✅ DIRECT UPDATE SUCCESS:', JSON.stringify(updatedFolder));
+      res.json(updatedFolder);
+    } catch (error) {
+      console.error('❌ DIRECT UPDATE FAILED:', error);
+      res.status(500).json({ error: 'Failed to update folder' });
+    }
+  });
+
   // WORKING FOLDER UPDATE ROUTE
   app.patch('/api/folders/:id/update', async (req, res) => {
     console.log('🎉 FOLDER UPDATE ROUTE EXECUTING! ID:', req.params.id);
