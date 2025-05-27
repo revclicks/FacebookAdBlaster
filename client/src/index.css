@@ -70,26 +70,46 @@ input:valid {
   background-color: white !important;
 }
 
-/* Fix yellow button and select backgrounds */
+/* Remove all yellow styling and replace with clean blue/grey */
 button[data-variant="outline"] {
   background-color: white !important;
+  border-color: #d1d5db !important; /* light grey */
+}
+
+button[data-variant="outline"]:hover {
+  background-color: #dbeafe !important; /* light blue */
+  border-color: #93c5fd !important; /* blue */
+  color: #1d4ed8 !important; /* blue text */
 }
 
 button[data-state="open"] {
   background-color: white !important;
+  border-color: #d1d5db !important;
 }
 
 select {
   background-color: white !important;
+  border-color: #d1d5db !important;
 }
 
 [role="combobox"] {
   background-color: white !important;
+  border-color: #d1d5db !important;
 }
 
-/* Specifically target outline buttons with yellow background */
-.border.border-input {
-  background-color: white !important;
+/* Remove yellow from validation states */
+*:valid {
+  border-color: #d1d5db !important;
+}
+
+*:invalid {
+  border-color: #d1d5db !important;
+}
+
+/* Override any yellow focus states */
+*:focus {
+  border-color: #3b82f6 !important; /* blue */
+  box-shadow: 0 0 0 2px #dbeafe !important; /* light blue ring */
 }
 
 .dark {
