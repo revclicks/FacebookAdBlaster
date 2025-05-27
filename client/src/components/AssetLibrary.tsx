@@ -158,40 +158,14 @@ export default function AssetLibrary() {
     }
   };
 
-  const handleRenameFolder = async (folderId: number, currentName: string) => {
+  const handleRenameFolder = (folderId: number, currentName: string) => {
     const newName = prompt('Enter new folder name:', currentName);
     if (newName && newName !== currentName) {
-      try {
-        // Use the existing storage method directly through API
-        const response = await fetch(`/api/asset-folders/${folderId}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ name: newName.trim() }),
-          credentials: 'include'
-        });
-
-        if (response.ok) {
-          console.log('✅ Folder renamed successfully');
-          // Force refresh the folder data
-          queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
-          queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
-        } else {
-          console.error('❌ Folder rename failed:', response.status);
-          
-          // If the regular route fails, fallback to direct database update
-          console.log('🔄 Attempting direct database update...');
-          const directResult = await storage.updateAssetFolder(folderId, { name: newName.trim() });
-          console.log('✅ Direct database update successful:', directResult);
-          
-          // Refresh the folder data
-          queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
-          queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
-        }
-      } catch (error) {
-        console.error('❌ Folder rename failed:', error);
-      }
+      // Use the existing mutation system that we know works
+      updateFolderMutation.mutate({
+        id: folderId,
+        updates: { name: newName.trim() }
+      });
     }
   };
 
