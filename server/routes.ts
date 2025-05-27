@@ -174,10 +174,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const folderId = parseInt(req.params.id);
       const updates = req.body;
       
+      console.log('Updating folder:', folderId, 'with updates:', updates);
+      
       // Update the folder
       const updatedFolder = await storage.updateAssetFolder(folderId, updates);
+      
+      console.log('Updated folder result:', updatedFolder);
       res.json(updatedFolder);
     } catch (error) {
+      console.error('Error updating folder:', error);
       res.status(500).json({ error: error.message });
     }
   });
