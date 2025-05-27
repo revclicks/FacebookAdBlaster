@@ -173,8 +173,13 @@ export default function AssetLibrary() {
       .then(response => {
         if (response.ok) {
           console.log('✅ Direct fetch successful');
-          // Manually refresh the data
+          // Force immediate cache refresh
           queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
+          queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
+          // Also force a page refresh after a short delay to ensure update
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         } else {
           console.error('❌ Direct fetch failed:', response.status);
         }
