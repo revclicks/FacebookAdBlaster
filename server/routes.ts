@@ -63,6 +63,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: "ok" });
   });
 
+  // Test route for folder updates - BEFORE authentication
+  app.patch('/api/asset-folders/:id', async (req, res) => {
+    console.log('=== ASSET FOLDER PATCH ROUTE DEFINITELY HIT ===', req.params.id);
+    try {
+      console.log('PATCH route hit - folder ID:', req.params.id);
+      console.log('PATCH route - request body:', JSON.stringify(req.body));
+      
+      const folderId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      console.log('Parsed folder ID:', folderId);
+      console.log('Updates object:', JSON.stringify(updates));
+      
+      // Update the folder (assuming user ID 1 for now)
+      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
+      
+      console.log('Storage update completed, result:', JSON.stringify(updatedFolder));
+      res.json(updatedFolder);
+    } catch (error) {
+      console.error('Error updating folder:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Apply authentication to all API routes
   app.use('/api', authenticateUser);
 
