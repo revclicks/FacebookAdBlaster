@@ -383,34 +383,16 @@ export default function AssetLibrary() {
             </Card>
           )}
 
-          {/* Show all folders as drop zones when dragging an asset */}
-          {isDragging && draggedAsset && !currentFolderId && folders.map((folder) => (
-            <Card 
-              key={`drop-${folder.id}`}
-              className={`cursor-pointer transition-all border-2 border-dashed ${
-                dropTarget === folder.id ? 'border-blue-500 bg-blue-50' : 'border-blue-300 bg-blue-50'
-              }`}
-              onDragOver={handleDragOver}
-              onDragEnter={(e) => handleDragEnter(e, folder.id as any)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDrop(e, folder.id as any)}
-            >
-              <CardContent className="p-4">
-                <div className="flex flex-col items-center">
-                  <Folder className="h-8 w-8 text-blue-500 mb-2" />
-                  <span className="text-sm font-medium text-blue-700 text-center">{folder.name}</span>
-                  <span className="text-xs text-blue-500">Drop here</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-
-          {/* Regular Folders (when not dragging an asset) */}
-          {(!isDragging || !draggedAsset) && folders.map((folder) => (
+          {/* Folders - always visible, with special styling when dragging */}
+          {folders.map((folder) => (
             <Card 
               key={folder.id} 
-              className={`relative cursor-pointer hover:shadow-md transition-all group border border-slate-200 hover:border-blue-300 ${
-                dropTarget === folder.id && isDragging ? 'border-blue-500 bg-blue-50' : ''
+              className={`relative cursor-pointer hover:shadow-md transition-all group ${
+                isDragging && draggedAsset 
+                  ? dropTarget === folder.id 
+                    ? 'border-2 border-blue-500 bg-blue-50 border-dashed' 
+                    : 'border-2 border-blue-300 bg-blue-25 border-dashed hover:border-blue-400 hover:bg-blue-50'
+                  : 'border border-slate-200 hover:border-blue-300'
               }`}
               draggable
               onDragStart={(e) => handleDragStart(e, folder as any, 'folder')}
@@ -452,15 +434,26 @@ export default function AssetLibrary() {
               </div>
               
               <CardContent className="p-6 text-center">
-                <div className="flex flex-col items-center" onClick={() => setCurrentFolderId(folder.id)}>
+                <div className="flex flex-col items-center" onClick={() => !isDragging && setCurrentFolderId(folder.id)}>
                   <div className="relative mb-3">
-                    <Folder className="h-12 w-12 text-blue-500 mb-2" />
-                    {isDragging && <Move className="h-4 w-4 text-blue-600 absolute -top-1 -right-1" />}
+                    <Folder className={`h-12 w-12 mb-2 ${
+                      isDragging && draggedAsset ? 'text-blue-500' : 'text-blue-500'
+                    }`} />
+                    {isDragging && draggedAsset && <Move className="h-4 w-4 text-blue-600 absolute -top-1 -right-1" />}
                   </div>
-                  <span className="text-xs text-slate-500 mb-1">
-                    {assets.filter(asset => asset.folderId === folder.id).length} creatives
-                  </span>
-                  <span className="text-sm font-medium text-slate-800">{folder.name}</span>
+                  {isDragging && draggedAsset ? (
+                    <>
+                      <span className="text-sm font-medium text-blue-700 mb-1">{folder.name}</span>
+                      <span className="text-xs text-blue-500">Drop here</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xs text-slate-500 mb-1">
+                        {assets.filter(asset => asset.folderId === folder.id).length} creatives
+                      </span>
+                      <span className="text-sm font-medium text-slate-800">{folder.name}</span>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </Card>
