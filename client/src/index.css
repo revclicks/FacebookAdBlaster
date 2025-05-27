@@ -112,6 +112,23 @@ select {
   box-shadow: 0 0 0 2px #dbeafe !important; /* light blue ring */
 }
 
+/* Target specific yellow elements */
+.bg-yellow-400,
+.bg-yellow-500,
+.bg-yellow-600,
+.bg-yellow-200,
+.bg-yellow-100 {
+  background-color: white !important;
+}
+
+/* Target any remaining yellow styling */
+button[style*="yellow"],
+div[style*="yellow"],
+*[class*="yellow"] {
+  background-color: white !important;
+  border-color: #d1d5db !important;
+}
+
 .dark {
   --background: 2 6 23; /* #020617 - slate-950 */
   --foreground: 248 250 252; /* #F8FAFC - slate-50 */
