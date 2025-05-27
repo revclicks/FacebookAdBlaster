@@ -63,7 +63,9 @@ export default function AssetLibrary() {
       currentFolderId ? folder.parentId === currentFolderId : folder.parentId === null
     ),
     staleTime: 0,
-    refetchOnMount: true
+    cacheTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
 
   // Fetch all assets (not filtered for folder count calculation)
@@ -104,6 +106,7 @@ export default function AssetLibrary() {
       apiRequest('PATCH', `/api/asset-folders/${id}`, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/asset-folders'] });
+      queryClient.refetchQueries({ queryKey: ['/api/asset-folders'] });
     },
   });
 
