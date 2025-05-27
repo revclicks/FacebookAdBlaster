@@ -8,7 +8,7 @@ import {
   type SubmissionJob, type InsertSubmissionJob
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, isNull } from "drizzle-orm";
 
 export interface IStorage {
   // Users
@@ -106,12 +106,15 @@ export class DatabaseStorage implements IStorage {
 
   // Asset Folders
   async getAssetFolders(userId: number, parentId?: number): Promise<AssetFolder[]> {
-    return await db.select().from(assetFolders)
-      .where(and(
-        eq(assetFolders.userId, userId),
-        parentId ? eq(assetFolders.parentId, parentId) : eq(assetFolders.parentId, null)
-      ))
-      .orderBy(asc(assetFolders.name));
+    if (parentId) {
+      return await db.select().from(assetFolders)
+        .where(and(eq(assetFolders.userId, userId), eq(assetFolders.parentId, parentId)))
+        .orderBy(asc(assetFolders.name));
+    } else {
+      return await db.select().from(assetFolders)
+        .where(and(eq(assetFolders.userId, userId), eq(assetFolders.parentId, null)))
+        .orderBy(asc(assetFolders.name));
+    }
   }
 
   async createAssetFolder(folder: InsertAssetFolder): Promise<AssetFolder> {
