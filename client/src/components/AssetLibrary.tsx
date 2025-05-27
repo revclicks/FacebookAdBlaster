@@ -66,13 +66,15 @@ export default function AssetLibrary() {
     refetchOnMount: true
   });
 
-  // Fetch assets
-  const { data: assets = [] } = useQuery({
+  // Fetch all assets (not filtered for folder count calculation)
+  const { data: allAssets = [] } = useQuery<Asset[]>({
     queryKey: ['/api/assets'],
-    select: (data: Asset[]) => data.filter(asset => 
-      currentFolderId ? asset.folderId === currentFolderId : !asset.folderId
-    )
   });
+
+  // Filter assets for current view
+  const assets = allAssets.filter((asset: Asset) => 
+    currentFolderId ? asset.folderId === currentFolderId : !asset.folderId
+  );
 
   // Create folder mutation
   const createFolderMutation = useMutation({
@@ -416,11 +418,7 @@ export default function AssetLibrary() {
                     ) : (
                       <>
                         <span className="text-xs text-slate-500 mb-1">
-                          {(() => {
-                            const count = assets.filter(asset => asset.folderId === folder.id).length;
-                            console.log(`Folder ${folder.name} (ID: ${folder.id}) has ${count} assets. All assets:`, assets);
-                            return count;
-                          })()} creatives
+                          {allAssets.filter(asset => asset.folderId === folder.id).length} creatives
                         </span>
                         <span className="text-sm font-medium text-slate-800">{folder.name}</span>
                       </>
