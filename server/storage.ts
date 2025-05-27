@@ -111,9 +111,12 @@ export class DatabaseStorage implements IStorage {
         .where(and(eq(assetFolders.userId, userId), eq(assetFolders.parentId, parentId)))
         .orderBy(asc(assetFolders.name));
     } else {
-      return await db.select().from(assetFolders)
+      const result = await db.select().from(assetFolders)
         .where(eq(assetFolders.userId, userId))
         .orderBy(asc(assetFolders.name));
+      
+      // Filter root folders (those with null or empty parent_id)
+      return result.filter(folder => !folder.parentId);
     }
   }
 
