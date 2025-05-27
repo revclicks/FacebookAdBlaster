@@ -263,9 +263,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'Asset not found' });
       }
       
+      console.log('Updating asset with:', req.body);
       const updatedAsset = await storage.updateAsset(parseInt(req.params.id), req.body);
+      console.log('Updated asset result:', updatedAsset);
       res.json(updatedAsset);
     } catch (error) {
+      console.error('Asset update error:', error);
       res.status(500).json({ error: error.message });
     }
   });
