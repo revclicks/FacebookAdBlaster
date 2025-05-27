@@ -422,6 +422,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics endpoints
+  app.get("/api/analytics/overview", authenticateUser, async (req: any, res: any) => {
+    try {
+      const dateRange = req.query.dateRange || '7d';
+      
+      // Check if user has connected Facebook accounts
+      const facebookAccounts = await storage.getFacebookAccounts(req.user.id);
+      
+      if (facebookAccounts.length === 0) {
+        return res.json({
+          totalSpend: 0,
+          totalImpressions: 0,
+          totalClicks: 0,
+          totalConversions: 0,
+          averageCTR: 0,
+          averageCPC: 0,
+          averageROAS: 0,
+          activeCampaigns: 0,
+          spendChange: 0,
+          impressionsChange: 0,
+          clicksChange: 0,
+          conversionsChange: 0
+        });
+      }
+
+      // Here we would fetch real data from Facebook Ads API using the connected accounts
+      // For now, return zero values until Facebook API credentials are properly configured
+      const overview = {
+        totalSpend: 0,
+        totalImpressions: 0,
+        totalClicks: 0,
+        totalConversions: 0,
+        averageCTR: 0,
+        averageCPC: 0,
+        averageROAS: 0,
+        activeCampaigns: 0,
+        spendChange: 0,
+        impressionsChange: 0,
+        clicksChange: 0,
+        conversionsChange: 0
+      };
+      
+      res.json(overview);
+    } catch (error) {
+      console.error("Error fetching analytics overview:", error);
+      res.status(500).json({ error: "Failed to fetch analytics overview" });
+    }
+  });
+
+  app.get("/api/analytics/campaigns", authenticateUser, async (req: any, res: any) => {
+    try {
+      const dateRange = req.query.dateRange || '7d';
+      
+      // Check if user has connected Facebook accounts
+      const facebookAccounts = await storage.getFacebookAccounts(req.user.id);
+      
+      if (facebookAccounts.length === 0) {
+        return res.json([]);
+      }
+
+      // Here we would fetch real campaign performance data from Facebook Ads API
+      // For now, return empty array until Facebook API credentials are properly configured
+      const campaigns = [];
+      
+      res.json(campaigns);
+    } catch (error) {
+      console.error("Error fetching campaign analytics:", error);
+      res.status(500).json({ error: "Failed to fetch campaign analytics" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
