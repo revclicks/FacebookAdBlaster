@@ -383,8 +383,30 @@ export default function AssetLibrary() {
             </Card>
           )}
 
-          {/* Real Folders from Database */}
-          {folders.map((folder) => (
+          {/* Show all folders as drop zones when dragging */}
+          {isDragging && !currentFolderId && folders.map((folder) => (
+            <Card 
+              key={`drop-${folder.id}`}
+              className={`cursor-pointer transition-all border-2 border-dashed ${
+                dropTarget === folder.id ? 'border-blue-500 bg-blue-50' : 'border-blue-300 bg-blue-25'
+              }`}
+              onDragOver={handleDragOver}
+              onDragEnter={(e) => handleDragEnter(e, folder.id as any)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, folder.id as any)}
+            >
+              <CardContent className="p-4">
+                <div className="flex flex-col items-center">
+                  <Folder className="h-8 w-8 text-blue-500 mb-2" />
+                  <span className="text-sm font-medium text-blue-700 text-center">{folder.name}</span>
+                  <span className="text-xs text-blue-500">Drop here</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Regular Folders (when not dragging) */}
+          {!isDragging && folders.map((folder) => (
             <Card 
               key={folder.id} 
               className={`relative cursor-pointer hover:shadow-md transition-all group border border-slate-200 hover:border-blue-300 ${
