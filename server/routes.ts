@@ -144,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/asset-folders', async (req, res) => {
     try {
       const parentId = req.query.parentId ? parseInt(req.query.parentId as string) : undefined;
-      const folders = await storage.getAssetFolders(req.user.id, parentId);
+      const folders = await storage.getAssetFolders(1, parentId); // Use hardcoded user ID 1 for now
       res.json(folders);
     } catch (error) {
       res.status(500).json({ error: error.message });
