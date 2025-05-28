@@ -82,26 +82,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Asset folder update route
-  app.patch('/api/asset-folders/:id', authenticateUser, async (req: any, res: any) => {
-    console.log('📁 FOLDER UPDATE - ID:', req.params.id, 'Body:', JSON.stringify(req.body));
-    
-    try {
-      const folderId = parseInt(req.params.id);
-      const updates = req.body;
-      
-      // Note: User ownership will be verified by the storage layer
-      
-      console.log('🔄 Updating folder with storage...');
-      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
-      
-      console.log('✅ FOLDER UPDATE SUCCESS:', JSON.stringify(updatedFolder));
-      res.json(updatedFolder);
-    } catch (error) {
-      console.error('❌ FOLDER UPDATE ERROR:', error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   // Authentication is now applied individually to routes above
 
@@ -208,7 +189,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-
+  app.patch('/api/asset-folders/:id', authenticateUser, async (req: any, res: any) => {
+    console.log('📁 FOLDER UPDATE - ID:', req.params.id, 'Body:', JSON.stringify(req.body));
+    
+    try {
+      const folderId = parseInt(req.params.id);
+      const updates = req.body;
+      
+      console.log('🔄 Updating folder with storage...');
+      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
+      
+      console.log('✅ FOLDER UPDATE SUCCESS:', JSON.stringify(updatedFolder));
+      res.json(updatedFolder);
+    } catch (error) {
+      console.error('❌ FOLDER UPDATE ERROR:', error);
+      res.status(500).json({ error: error.message });
+    }
+  });
 
   app.delete('/api/asset-folders/:id', async (req, res) => {
     try {
