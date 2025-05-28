@@ -189,20 +189,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/asset-folders/:id', authenticateUser, async (req: any, res: any) => {
-    console.log('📁 FOLDER UPDATE - ID:', req.params.id, 'Body:', JSON.stringify(req.body));
+  app.post('/api/asset-folders/rename', authenticateUser, async (req: any, res: any) => {
+    console.log('📁 FOLDER RENAME - Body:', JSON.stringify(req.body));
     
     try {
-      const folderId = parseInt(req.params.id);
-      const updates = req.body;
+      const { id, name } = req.body;
+      console.log('🔄 Renaming folder with storage...');
+      const updatedFolder = await storage.updateAssetFolder(id, { name });
       
-      console.log('🔄 Updating folder with storage...');
-      const updatedFolder = await storage.updateAssetFolder(folderId, updates);
-      
-      console.log('✅ FOLDER UPDATE SUCCESS:', JSON.stringify(updatedFolder));
+      console.log('✅ FOLDER RENAME SUCCESS:', JSON.stringify(updatedFolder));
       res.json(updatedFolder);
     } catch (error) {
-      console.error('❌ FOLDER UPDATE ERROR:', error);
+      console.error('❌ FOLDER RENAME ERROR:', error);
       res.status(500).json({ error: error.message });
     }
   });

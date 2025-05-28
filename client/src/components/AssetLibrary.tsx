@@ -104,7 +104,7 @@ export default function AssetLibrary() {
   const updateFolderMutation = useMutation({
     mutationFn: ({ id, updates }: { id: number; updates: Partial<AssetFolder> }) => {
       console.log('Frontend: Starting folder rename mutation', { id, updates });
-      return apiRequest('PATCH', `/api/asset-folders/${id}`, updates);
+      return apiRequest('POST', '/api/asset-folders/rename', { id, name: updates.name });
     },
     onSuccess: (data, variables) => {
       console.log('Frontend: Folder rename mutation success', { data, variables });
