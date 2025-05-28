@@ -103,8 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Apply authentication to all API routes
-  app.use('/api', authenticateUser);
+  // Authentication is now applied individually to routes above
 
   // Facebook OAuth routes
   app.get('/api/facebook/auth-url', (req, res) => {
