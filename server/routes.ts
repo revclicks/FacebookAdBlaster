@@ -84,7 +84,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 
 
-  // Authentication is now applied individually to routes above
+  // Apply authentication middleware to all API routes except OAuth
+  app.use('/api', (req, res, next) => {
+    // Skip auth for OAuth routes
+    if (req.path.startsWith('/facebook/auth-url') || req.path.startsWith('/facebook/exchange-token')) {
+      return next();
+    }
+    return authenticateUser(req, res, next);
+  });
 
   // Facebook OAuth routes
   app.get('/api/facebook/auth-url', (req, res) => {
@@ -175,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/asset-folders', authenticateUser, async (req, res) => {
+  app.post('/api/asset-folders', async (req, res) => {
     try {
       const folderData = insertAssetFolderSchema.parse({
         ...req.body,
@@ -189,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/asset-folders/rename', authenticateUser, async (req: any, res: any) => {
+  app.post('/api/asset-folders/rename', async (req: any, res: any) => {
     console.log('📁 FOLDER RENAME - Body:', JSON.stringify(req.body));
     
     try {
